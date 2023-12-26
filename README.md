@@ -1,39 +1,25 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+- Контроллер явялется реализацией кубита, но с поддержкой concurrency
+- Контроллер обновляет состояние асинхронно
+- Контроллер обновляет состояние транзакционно(в случае необработанной ошибки состояние не изменится)
+- Метод handle не приводит к необработанным исключением в root зону
+- UI об измененном состоянии уведомляется синхронно
+- Presenter "мягко" связывает контроллеры между собой
+- ViewWidget - "тупая" вьюха, связанная с презентером через интерфейс
+- Состояние контроллера проксируется во ViewWidget через StateWrapper
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+# Bad practice
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
+1. __Прокидывать context во вьюху__
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+    Вьюха перестает быть "тупой"
+2. __Прокидывать контроллер во вьюху__
 
-## Features
+    Нарушает контракт между вьюхой и презентером
+3. __Обновлять состояние контроллера через сеттер внутри колбэков handle__
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+   handle больше не может гарантировать транзакционность изменения
+4. __Прокидывать один контроллер внутрь другого__
 
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
-```dart
-const like = 'sample';
-```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+   Размывается зона ответственности контроллера, непонятно, какой контроллер должен отвечать за обращение ко второму
+    
+    
